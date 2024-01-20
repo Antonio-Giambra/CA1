@@ -25,7 +25,7 @@ public class CA1 {
             }
             
             //Calling new txt creator method with validated information
-            Validator.statusCreator(Validator.Checking(numberLine));
+            Validator.statusCreator(Validator.Checker(numberLine));
             
         }catch(Exception e){
             System.out.println(e);
