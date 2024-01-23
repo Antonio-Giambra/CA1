@@ -10,10 +10,10 @@ import java.io.IOException;
 
 public class Validator {
     
-    static String[] Checker(int  time) throws FileNotFoundException, IOException{
+    static String[] Checker(int  time, String path) throws FileNotFoundException, IOException{
         String[] studentPersonalData = new String[time];
         String reading;
-        BufferedReader cr = new BufferedReader(new FileReader("students.txt"));
+        BufferedReader cr = new BufferedReader(new FileReader(path));
         for(int i = 0; i < studentPersonalData.length; i+=3){
             
             reading = cr.readLine().trim();
@@ -46,6 +46,7 @@ public class Validator {
     public static boolean gettingSecondName(String name){
         String[] secondName = name.split(" ");
         try{
+            //Checking if first name only has letters and second name only has letters and numbers
             String regexFirstName = "^[a-zA-Z]+$";
             String regexSecondName = "^[a-zA-Z0-9]+$";
             if(secondName[0].matches(regexFirstName) && secondName[1].matches(regexSecondName)){
@@ -84,8 +85,9 @@ public class Validator {
     //Method for checking whether the student number is valid or not, if student number is valid, method will return true.
     public static boolean studentNumberChecker(String studentNumber){
         try{
-            int studentYear = Integer.parseInt(studentNumber.substring(0,2));
             
+            //Checking whether the 5th is a number or letter in order to process it into the second conditional
+            int studentYear = Integer.parseInt(studentNumber.substring(0,2));
             int numberAfter = 201;
             boolean correctNumberAfter = false;
             
@@ -99,6 +101,7 @@ public class Validator {
                 if(reasonableNumber < numberAfter) correctNumberAfter = true;
             }
             
+            //Verification of student number requirements.
             if(studentNumber.length() >= 6){
                 if(studentNumber.substring(0,2).matches("[0-9]+") && studentYear >= 20){
                     if(studentNumber.substring(2,4).matches("[a-zA-Z]+")){
@@ -114,25 +117,25 @@ public class Validator {
             System.out.println(e);
         }
         System.out.println("Sorry, name " + studentNumber + " does not comply with the requirements. \nThe student number must be a minimun of 6 characters with the first 2 characters being numbers (20 or higher).\nThe 3rd and 4th characters (and possibly 5th) being a letter, and everything after the last letter being a number between 1 - 200");
-        
         System.out.println();
         return false;
     }
     //-----------------------------------------------------------------------------------------------------------------------
     
-    //Method to create a new file after validations
-    public static boolean statusCreator(String[] data){
+    //Method to create the status.txt file with all validated data
+    public static void statusCreator(String[] data){
         try{
             BufferedWriter bw = new BufferedWriter(new FileWriter("status.txt"));
             for(int k = 0; k < data.length; k+=3){
-                bw.write(data[2 + k] + " - " + data[0 + k] + "\n" + data[1 + k] + "\n");
+                if(data[0 + k] != null || data[1 + k] != null || data[2 + k] != null){
+                    bw.write(data[2 + k] + " - " + data[0 + k] + "\n" + data[1 + k] + "\n");
+                }
             }
             System.out.println("Status.txt File has been created succesfully");
             bw.close();
-        }catch(Exception e){
+        }catch(IOException e){
             System.out.println(e);
         }
-        return false;
     }
     //------------------------------------------------------------------------------------------------------------------------
 }
