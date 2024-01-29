@@ -11,77 +11,85 @@ import java.util.Scanner;
 
 public class CA1 {
     
-    static int numberLines(String path) throws FileNotFoundException, IOException{
+    static int numberLines(String path){
+        int numberLine = 0;
+        try{
         BufferedReader br = new BufferedReader(new FileReader(path));
         //Trigger created to break the "While "loop when the line is null or unexisting
-                        boolean trigger = false;
+        boolean trigger = false;
 
                         //Checking how many lines the file has
-                        int numberLine = 0;
-                        while(trigger == false){
-                            String line = br.readLine();
-                            if(line != null){
-                                numberLine++;
-                            }else {
-                                trigger = true;
-                            }
-                        }
-                        return numberLine;
+        while(trigger == false){
+            String line = br.readLine();
+            if(line == null || line.equals(" ")){
+                trigger = true;
+                
+            }
+            if(trigger == false) numberLine = numberLine + 1;
+       }
+       }catch(Exception e){
+           System.out.println("el programa detecto un espacio en blanco");
+       }
+       return numberLine;
     }
     
     public static void main(String[] args){
         
         try{
-            String path;
             //----------READING ALL INFORMATION FROM STUDENTS.TXT-------------//
+            String pathStandard = "students.txt";
+            String pathManual = "student2.txt";
+            String pathStatus = "status.txt";
+            
             boolean exit = false;
+            Scanner sc = new Scanner(System.in);
             while(exit == false){
-                Scanner sc = new Scanner(System.in);
-                System.out.println("Welcome to this system \n Press 1 for standard operation \n Press 2 for manual operation \n Press 3 to exit");
-                System.out.println();
+                System.out.println("Welcome to this system!! \n\n Press 1 for standard operation \n Press 2 for manual operation \n Press 3 to exit");
                 
-                int menu = sc.nextInt();
-                switch(menu){
+                if(sc.hasNextLine()){
+                switch(Integer.parseInt(sc.nextLine())){
                     
-                    case 1:
-                        //Standard Case
-                        path = "student.txt";
+                    case 1: //Standard Case
                         //Calling txt creator method with validated information in order to create the status.txt file
-                        Validator.statusCreator(Validator.Checker(numberLines(path),path));
+                        
+                        Validator.statusCreator(Validator.Checker(numberLines(pathStandard),pathStandard), pathStatus);
                         break;
                     case 2:
-                        path = "student2.txt";
                         System.out.println("You must introduce the student data as the example below \nLine 1 – <First Name> <Second Name>\nLine 2 – <Number of classes>\nLine 3 – <Student number>\nYou can start to type your students");
                         System.out.println();
-                        Scanner sr = new Scanner(System.in);
-                        BufferedWriter bw2 = new BufferedWriter(new FileWriter("student2.txt"));
+                        System.out.println("Write 'end' if you have finished. If not you can continue typing");
+                        System.out.println();
+                        BufferedWriter bw2 = new BufferedWriter(new FileWriter(pathManual));
                         boolean endTransaction = false;
                         while(endTransaction == false){
-                            String data = sr.nextLine();
+                            String data = sc.nextLine();
                             String ending = data.toLowerCase();
+                            
                             if(ending.equals("end")){
-                                endTransaction = true;
-                                sr.close();
+                                sc.close();
                                 bw2.close();
-                            }else{
+                                endTransaction = true;
+                            }else if(sc.hasNext()){
                                 bw2.write(data);
-                                bw2.newLine();
+                                if(!ending.equals("end")) bw2.newLine();
                             }
-                            System.out.println("Write 'end' if you have finished. If not you can continue typing");
                         }
-                        Validator.statusCreator(Validator.Checker(numberLines(path),path));
+                        Validator.statusCreator(Validator.Checker(numberLines(pathManual),pathManual),pathStatus);
                         break;
                     case 3:
+                        System.out.println();
                         System.out.println("Thank you for using this system.");
+                        sc.close();
                         exit = true;
                         break;
                     default:
-                        System.out.println("Please press a valid number");
+                        System.out.println("Please enter a valid number");
                         break;
                 }
+             }
             }
-        }catch(Exception e){
-            System.out.println("Your document has an empty line. Please fix it to continue");
+        }catch(IOException e){
+            System.out.println(e);
         }
         
     }
