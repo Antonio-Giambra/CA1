@@ -16,13 +16,15 @@ public class Validator {
         try{
         
         //Creation of Buffered Reader in order to read the document which has been received from Main Project
-        String reading;
         BufferedReader cr = new BufferedReader(new FileReader(path));
+        
+        //reading will tell us the information contained in each line
+        String reading;
         
         //This for loop will read every 3 lines of the document in order to get every student and then calling back to other methods to get a verified result
         for(int i = 0; i < studentPersonalData.length; i+=3){
             
-            //cleaning all white spaces in each line
+            //cleaning first and last white spaces in each line
             reading = cr.readLine().trim();
             
             //while the line read is not null, the for loop can work. Otherwise, it will jump by 3 lines, but if it doesn't find another true line, then the loop break itself.
@@ -33,6 +35,8 @@ public class Validator {
                 
                 //checking how many clasess the person has with Workload Method.
                 String reading2 = cr.readLine().trim();
+                
+                //converting our reading into a int in order to send it for validation
                 int test = Integer.parseInt(reading2);
                 String number = workload(test);
                 
@@ -43,6 +47,7 @@ public class Validator {
                 //If Checker accept the three requirement for each student, it will insert information to array studentPersonalData. Otherwise, it will skip the student and check another student.
                 if(secondName == true && number != null && checker == true){
                    String[] secondNameTrue = reading.split(" ");
+                   //filling up our array with every 3 lines of the txt file
                    studentPersonalData[0 + i] = secondNameTrue[1];
                    studentPersonalData[1 + i] = number;
                    studentPersonalData[2 + i] = reading3;
@@ -72,6 +77,7 @@ public class Validator {
         }catch(Exception e){
             System.out.println(e);
         }
+        System.out.println();
         System.out.println("Sorry, name " + secondName[0] + " does not comply with the requirements. \n The first name must be letters only. The second name can be letters and/or numbers and must be separated from the first name by a single space; ");
         System.out.println();
         return false;
@@ -79,22 +85,27 @@ public class Validator {
     //----------------------------------------------------------------------------------------------------------------------
     
     //Method for validating workload of classes. It cannot be more than 8.
-    static String workload(int classes){
+    public static String workload(int classes){
         try{
+            //Creation of variables for workload
             String vl = "Very Light";
             String l = "Ligth";
             String pt = "Part Time";
             String ft = "Full Time";
+            //Checking which worload has the student
             if(classes == 1) return vl;
             else if(classes == 2) return l;
-            else if(classes > 2 || classes <= 5) return pt;
-            else if(classes >= 6 && classes < 9) return ft;
-            
+            else if(classes >= 3 && classes <= 5) return pt;
+            else if(classes >= 6 && classes <= 8) return ft;
+            else {
+                System.out.println();
+                System.out.println("Sorry, " + classes + " classes does not comply with the requirements\nThe number of classes must be an integer value between 1 and 8 (inclusive).");
+                System.out.println();
+                return null;
+            }
         }catch(Exception e){
             System.out.println(e);
         }
-        System.out.println("Sorry, " + classes + " classes does not comply with the requirements\nThe number of classes must be an integer value between 1 and 8 (inclusive).");
-        System.out.println();
         return null;
     }
    //---------------------------------------------------------------------------------------------------------------------
@@ -109,18 +120,11 @@ public class Validator {
             boolean correctNumberAfter = false;
             
             //FIRST PART - Checking whether the 5th is a number or letter and also the number after the letters must be between 1 - 200.
-            if(studentNumber.substring(4,5).matches("[0-9]+")){
+            if(studentNumber.substring(4,5).matches("[0-9]+") && Integer.parseInt(studentNumber.substring(4)) <= numberAfter){
+                correctNumberAfter = true;
                 
-                int reasonableNumber = Integer.parseInt(studentNumber.substring(4));
-                if(reasonableNumber <= numberAfter) {
-                    correctNumberAfter = true;
-                }else correctNumberAfter = false;
-                
-            }else if(studentNumber.substring(5).matches("[0-9]+")){
-                
-                int reasonableNumber = Integer.parseInt(studentNumber.substring(5));
-                if(reasonableNumber <= numberAfter) correctNumberAfter = true;
-                
+            }else if(studentNumber.substring(5).matches("[0-9]+") && Integer.parseInt(studentNumber.substring(5)) <= numberAfter){
+                correctNumberAfter = true;
             }
             
             //SECOND PART - Verification of the whole student number requirements.
@@ -153,14 +157,40 @@ public class Validator {
     //Method to create the status.txt file with all validated data
     public static void statusCreator(String[] data, String path){
         try{
+            //Variable created in order to get the quantity of wrong student data captured by the program.
+            int wrongStudents =0;
+            
             BufferedWriter bw = new BufferedWriter(new FileWriter(path));
+            
+            //Loop for jumping every 3 steps
             for(int k = 0; k < data.length; k+=3){
+
                 //If everything has been validated and nothing is null, method can proceed to write into status.txt. Otherwise, the program will skip the student.
                 if(data[0 + k] != null || data[1 + k] != null || data[2 + k] != null){
                     bw.write(data[2 + k] + " - " + data[0 + k] + "\n" + data[1 + k] + "\n");
+                }else {
+                    wrongStudents++;
                 }
             }
-            System.out.println("Status.txt File has been created succesfully");
+            //Output for student who do not comply with requirements
+            switch (wrongStudents) {
+                case 0:
+                    System.out.println();
+                    System.out.println("Status.txt File has been created succesfully");
+                    System.out.println();
+                    break;
+                case 1:
+                    System.out.println();
+                    System.out.println("Status.txt File has been created succesfully, but you have " + wrongStudents + " student who does not comply with requirements. Therefore this student has not been written within status.txt");
+                    System.out.println();
+                    break;
+                default:
+                    System.out.println();
+                    System.out.println("Status.txt File has been created succesfully, but you have " + wrongStudents + " students who do not comply with requirements. Therefore these student has not been written within status.txt");
+                    System.out.println();
+                    break;
+            }
+            //Closing bufferedReader
             bw.close();
         }catch(IOException e){
             System.out.println(e);
